@@ -7,6 +7,8 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.uresti.pozarreal.dto.StreetInfo;
+import org.uresti.pozarreal.model.Representative;
 import org.uresti.pozarreal.model.Street;
 import org.uresti.pozarreal.repository.HousesRepository;
 import org.uresti.pozarreal.repository.RepresentativeRepository;
@@ -69,4 +71,38 @@ public class StreetServiceImplTests {
         Assertions.assertEquals("Street 2", streets.get(1).getName());
     }
 
+    @Test
+    public void givenAStreetInfor_whenGetsStreetInfo_ThenReturnStreetInfo()
+    {
+        // Given:
+        StreetRepository streetRepository = Mockito.mock(StreetRepository.class);
+        RepresentativeRepository representativeRepository = Mockito.mock(RepresentativeRepository.class);
+        HousesRepository housesRepository = Mockito.mock(HousesRepository.class);
+        Representative representative = new Representative();
+        StreetServiceImpl streetInfo = new StreetServiceImpl(streetRepository, representativeRepository, housesRepository);
+
+        String streetId = "id";
+        Street street=new Street();
+        street.setName("Street");
+        representative.setId("R id");
+        representative.setName("R name");
+        representative.setAddress("R adress");
+        representative.setStreet("R street");
+        representative.setPhone("1111111");
+
+        Mockito.when(streetRepository.findById(streetId)).thenReturn(Optional.of(street));
+        Mockito.when(representativeRepository.findRepresentativeByStreet(streetId)).thenReturn(representative);
+
+        // When
+        StreetInfo streetInfo1 = streetInfo.getStreetInfo(streetId);
+
+        // Then
+        Assertions.assertEquals("id", streetInfo1.getId());
+        Assertions.assertEquals("Street", streetInfo1.getName());
+        Assertions.assertEquals("R id", streetInfo1.getRepresentative().getId());
+        Assertions.assertEquals("R name", streetInfo1.getRepresentative().getName());
+        Assertions.assertEquals("R adress", streetInfo1.getRepresentative().getAddress());
+        Assertions.assertEquals("R street", streetInfo1.getRepresentative().getStreet());
+        Assertions.assertEquals("1111111", streetInfo1.getRepresentative().getPhone());
+    }
 }
